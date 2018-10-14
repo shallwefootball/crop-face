@@ -1,4 +1,4 @@
-const fs = require('fs-extra');
+const { readdir, ensureDir } = require('fs-extra');
 const path = require('path');
 const _ = require('lodash');
 const cv = require('opencv4nodejs');
@@ -10,9 +10,9 @@ const IMG_SRC_DIR = 'images';
 const IMG_DEST_DIR = 'face-images';
 
 (async function() {
-  let filenames = await fs.readdir(IMG_SRC_DIR);
+  await ensureDir(path.resolve(__dirname, IMG_DEST_DIR));
+  let filenames = await readdir(IMG_SRC_DIR);
   filenames = _.remove(filenames, file => IMG_REG.test(file));
-
   filenames.map(filename => {
     const imgPath = path.resolve(__dirname, IMG_SRC_DIR, filename);
     const cvMat = cv.imread(imgPath);
@@ -20,7 +20,11 @@ const IMG_DEST_DIR = 'face-images';
     const faceRects = detector.locateFaces(cvImg);
     const faceMats = faceRects
       .map(({ rect }) => fr.toCvRect(rect))
-      .map(cvRect => cvMat.getRegion(cvRect.pad(1.8)).copy());
+      .map(cvRect => {
+        const pos = cvRect.pad(1.63);
+        console.log('points - ', pos); // if points negative, running will failure.
+        return cvMat.getRegion(pos).copy();
+      });
     cv.imwrite(path.resolve(__dirname, IMG_DEST_DIR, filename), faceMats[0]);
   });
 })();
