@@ -2,4 +2,6 @@
 
 auto face crop, use yourself. 👻
 
+> please read [requirements](https://github.com/justadudewhohacks/face-recognition.js#requirements) 🧐
+
 ##### thanks for [face-recognition.js](https://github.com/justadudewhohacks/face-recognition.js)
